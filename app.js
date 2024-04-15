@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
 
-const { getTopics, getEndpoints } = require('./controller/api-controllers');
+const { getTopics, getEndpoints, getArticleById } = require('./controller/api-controllers');
 
-app.get("/api/topics", getTopics);
+app.get('/api/topics', getTopics);
 
 app.get('/api', getEndpoints);
+
+app.get('/api/articles/:article_id', getArticleById);
 
 app.all('*', (req, res) => {
     res.status(404).send({msg: "Not found: Path doesnt exist"})

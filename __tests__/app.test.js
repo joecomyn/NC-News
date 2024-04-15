@@ -64,11 +64,44 @@ describe('GET', () => {
 
     });
 
+    describe('GET: /api/articles/:article_id', () => {
+
+        describe('GOOD PATH:', () => {
+
+            test(`200: /api/topics responds with an article object containing all 
+            row properties of an article: (article_id, title, topic, author, body, time created, 
+            and image url)`, () => {
+                return request(app)
+                .get('/api/articles/1')
+                .expect(200)
+                .then(({body}) => {
+                    const { article } = body;
+                    //test type returned
+                    expect(typeof article).toBe('object');
+                    expect(Array.isArray(article)).toBe(false);
+                    expect(article === null).toBe(false);
+                    //test returned object properties match
+                    expect(article.article_id).toBe(1);
+                    expect(article.title).toBe("Living in the shadow of a great man");
+                    expect(article.topic).toBe("mitch");
+                    expect(article.author).toBe("butter_bridge");
+                    expect(article.body).toBe("I find this existence challenging");
+                    expect(article.created_at).toBe("2020-07-09T20:11:00.000Z");
+                    expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+                });
+            });
+
+        });
+
+
+    });
+
+
 });
 
 describe('URL BAD PATHS:', () => {
 
-    test('400: /api/topic responds with a 404 not found error as that endpoint does not exist', () => {
+    test('404: /api/topic responds with a 404 not found error as that endpoint does not exist', () => {
         return request(app)
         .get('/api/topic')
         .expect(404)
