@@ -89,10 +89,32 @@ describe('GET', () => {
                     expect(article.created_at).toBe("2020-07-09T20:11:00.000Z");
                     expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
                 });
+
             });
 
         });
 
+        describe('BAD PATHS:', () => {
+            
+            test('400: /api/articles/9999 When passed a non-existing id send a 400 bad request', () => {
+                return request(app)
+                .get('/api/articles/9999')
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe('Bad Request');
+                });
+            });
+
+            test('400: /api/articles/not_an_id When passed an id that is not the correct format send a 400 bad request', () => {
+                return request(app)
+                .get('/api/articles/not_an_id')
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe('Bad Request');
+                });
+            });
+
+        });
 
     });
 

@@ -13,4 +13,10 @@ app.all('*', (req, res) => {
     res.status(404).send({msg: "Not found: Path doesnt exist"})
   })
 
+app.use((err, req, res, next) => {
+    if(err.status && err.msg){
+        res.status(400).send({ msg: "Bad Request" });
+    }
+});
+
 module.exports = app;
