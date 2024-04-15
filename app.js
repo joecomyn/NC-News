@@ -1,5 +1,5 @@
 const express = require('express');
-const app = new express();
+const app = express();
 
 const { getTopics } = require('./controller/api-controllers');
 
