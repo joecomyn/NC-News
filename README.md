@@ -11,7 +11,18 @@ Packages used:
 - node-dotenv: Allows loading environment vaariables from .env files, used for setting PGDATABASE variable to correct database depending on testing/ development
   Install: npm install dotenv --save
 
-.ENV Setup:
+- express: Web framework for node allowing handling of HTTP method requests
+  Install: npm install express
+
+- jest: Simple Javascript testing framework
+  Install: npm install --save-dev jest
+
+- jest-extended: Adds additional matchers to jest to better test API requests
+  Install: npm install --save-dev jest-extended
+- supertest: Used for testing HTTP request assertions and API as a whole. Used in conjunction with Jest
+  Install: npm install supertest --save-dev
+
+- .ENV Setup:
 
 - This project requires 2 .env files to be created: .env.test and .env.development.
 - Add "
