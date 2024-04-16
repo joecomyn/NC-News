@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const { find, forEach } = require("../db/data/test-data/articles");
 
 exports.selectTopics = () => {
     return db.query('SELECT * FROM topics')
@@ -18,4 +19,22 @@ exports.selectArticleById = (article_id) => {
         }
         return rows[0];
     });
+};
+
+exports.selectArticles = () => {
+    return db.query('SELECT * FROM articles')
+    .then(({rows}) => {
+        return rows;
+    })
+};
+
+exports.countAllComments = (articles) => {
+    const getCommentCountPromises = articles.map((article) => {
+        return db.query(`SELECT FROM comments WHERE article_id=${article.article_id}`)
+        .then(({rows}) => {
+            return {...article, comment_count: rows.length};
+        })
+    });
+
+    return Promise.all(getCommentCountPromises)
 };

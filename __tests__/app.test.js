@@ -17,8 +17,7 @@ describe('GET', () => {
                 return request(app)
                 .get('/api/topics')
                 .expect(200)
-                .then(({body}) => {
-                    const {topics} = body;
+                .then(({body: { topics }}) => {
                     expect(Array.isArray(topics)).toBe(true);
                     topics.forEach((topic) => {
                         expect(typeof topic.description).toBe("string");
@@ -42,8 +41,7 @@ describe('GET', () => {
                 return request(app)
                 .get('/api')
                 .expect(200)
-                .then(({body}) => {
-                    const {endpoints} = body;
+                .then(({body: { endpoints }}) => {
                     expect(typeof endpoints).toBe('object');
                     expect(Array.isArray(endpoints)).toBe(false);
                     expect(endpoints !== null).toBe(true);
@@ -74,8 +72,7 @@ describe('GET', () => {
                 return request(app)
                 .get('/api/articles/1')
                 .expect(200)
-                .then(({body}) => {
-                    const { article } = body;
+                .then(({body: { article }}) => {
                     //test type returned
                     expect(typeof article).toBe('object');
                     expect(Array.isArray(article)).toBe(false);
@@ -100,8 +97,8 @@ describe('GET', () => {
                 return request(app)
                 .get('/api/articles/9999')
                 .expect(400)
-                .then(({body}) => {
-                    expect(body.msg).toBe('Bad Request');
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe('Bad Request');
                 });
             });
 
@@ -109,8 +106,8 @@ describe('GET', () => {
                 return request(app)
                 .get('/api/articles/not_an_id')
                 .expect(400)
-                .then(({body}) => {
-                    expect(body.msg).toBe('Bad Request');
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe('Bad Request');
                 });
             });
 
@@ -118,6 +115,35 @@ describe('GET', () => {
 
     });
 
+    describe('GET: /api/articles', () => {
+
+        describe('GOOD PATH:', () => {
+
+            test(`200: /api/articles responds with an array of article objects: 
+            each having author, title, article_id, topic, created_at, votes, 
+            article_img_url, comment_count properties`, () => {
+                return request(app)
+                .get('/api/articles')
+                .expect(200)
+                .then(({body: { articles }}) => {
+                    expect(Array.isArray(articles)).toBe(true);
+                    articles.forEach((article) => {
+                        expect(typeof article.author).toBe("string");
+                        expect(typeof article.title).toBe("string");
+                        expect(typeof article.article_id).toBe("number");
+                        expect(typeof article.topic).toBe("string");
+                        expect(typeof article.created_at).toBe("string");
+                        expect(typeof article.votes).toBe("number");
+                        expect(typeof article.article_img_url).toBe("string");
+                        expect(typeof article.comment_count).toBe("number");
+                    })
+                });
+            });
+
+        });
+
+
+    });
 
 });
 
@@ -127,8 +153,8 @@ describe('URL BAD PATHS:', () => {
         return request(app)
         .get('/api/topic')
         .expect(404)
-        .then(({body}) => {
-            expect(body.msg).toBe("Not found: Path doesnt exist"); 
+        .then(({body: { msg }}) => {
+            expect(msg).toBe("Not found: Path doesnt exist"); 
         });
     });
 
