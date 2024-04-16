@@ -127,7 +127,9 @@ describe('GET', () => {
                 .expect(200)
                 .then(({body: { articles }}) => {
                     expect(Array.isArray(articles)).toBe(true);
+                    expect(articles).toBeSorted({ descending: true });
                     articles.forEach((article) => {
+                        expect(article).not.toHaveProperty('body');
                         expect(typeof article.author).toBe("string");
                         expect(typeof article.title).toBe("string");
                         expect(typeof article.article_id).toBe("number");

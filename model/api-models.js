@@ -22,12 +22,14 @@ exports.selectArticleById = (article_id) => {
 };
 
 exports.selectArticles = () => {
-    return db.query('SELECT * FROM articles')
+    return db.query('SELECT * FROM articles ORDER BY created_at DESC')
     .then(({rows}) => {
         const commentCountPromises = rows.map((article) => {
             return db.query(`SELECT FROM comments WHERE article_id=${article.article_id}`)
             .then(({rows}) => {
-                return {...article, comment_count: rows.length};
+                const articleCopy = {...article, comment_count: rows.length};
+                delete articleCopy.body;
+                return articleCopy;
             })
         });
     
