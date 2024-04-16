@@ -3,6 +3,7 @@ const request = require('supertest');
 const db = require("../db/connection");
 const data = require('../db/data/test-data');
 const seed = require('../db/seeds/seed');
+const endpointsCheck = require('../endpoints.json');
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -45,13 +46,13 @@ describe('GET', () => {
                     expect(typeof endpoints).toBe('object');
                     expect(Array.isArray(endpoints)).toBe(false);
                     expect(endpoints !== null).toBe(true);
-                    for(const endpoint in endpoints){
-                        if(endpoint === "GET /api"){
-                            expect(typeof endpoints[endpoint].description).toBe('string');
+                    for(const receivedEndpoint in endpoints){
+                        if(receivedEndpoint === "GET /api"){
+                            expect(endpoints[receivedEndpoint].description).toBe("serves up a json representation of all the available endpoints of the api");
                         }else{
-                            expect(typeof endpoints[endpoint].description).toBe('string');
-                            expect(Array.isArray(endpoints[endpoint].queries)).toBe(true);
-                            expect(typeof endpoints[endpoint].exampleResponse).toBe('object');
+                            expect(endpoints[receivedEndpoint].description).toBe(endpointsCheck[receivedEndpoint].description);
+                            expect(endpoints[receivedEndpoint].queries).toEqual(endpointsCheck[receivedEndpoint].queries);
+                            expect(endpoints[receivedEndpoint].exampleResponse).toEqual(endpointsCheck[receivedEndpoint].exampleResponse);
                         }
                     }
                 });
@@ -73,11 +74,6 @@ describe('GET', () => {
                 .get('/api/articles/1')
                 .expect(200)
                 .then(({body: { article }}) => {
-                    //test type returned
-                    expect(typeof article).toBe('object');
-                    expect(Array.isArray(article)).toBe(false);
-                    expect(article === null).toBe(false);
-                    //test returned object properties match
                     expect(article.article_id).toBe(1);
                     expect(article.title).toBe("Living in the shadow of a great man");
                     expect(article.topic).toBe("mitch");
@@ -93,12 +89,12 @@ describe('GET', () => {
 
         describe('BAD PATHS:', () => {
             
-            test('400: /api/articles/9999 When passed a non-existing id send a 400 bad request', () => {
+            test('404: /api/articles/9999 When passed a non-existing id send a 404 Not found', () => {
                 return request(app)
                 .get('/api/articles/9999')
-                .expect(400)
+                .expect(404)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe('Bad Request');
+                    expect(msg).toBe("Not Found: ID doesn't exist");
                 });
             });
 
