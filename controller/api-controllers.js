@@ -1,5 +1,9 @@
-const { selectTopics, selectArticleById, selectArticles, countAllComments } = require('../model/api-models');
+const { selectTopics, selectArticleById, selectArticles, selectCommentsByArticleId } = require('../model/api-models');
 const endpoints = require('../endpoints.json');
+
+exports.getEndpoints = (req, res, next) => {
+    res.status(200).send({ endpoints });
+};
 
 exports.getTopics = (req, res, next) => {
     selectTopics()
@@ -8,13 +12,18 @@ exports.getTopics = (req, res, next) => {
     })
 };
 
-exports.getEndpoints = (req, res, next) => {
-    res.status(200).send({ endpoints });
+exports.getArticles = (req, res, next) => {
+    selectArticles()
+    .then((articles) => {
+        res.status(200).send({ articles: articles })
+    })
 };
 
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params;
-    if(!Number(article_id)) return res.status(400).send({msg:"Bad Request"})
+    if(!Number(article_id)){
+        res.status(400).send({msg:"Bad Request: article_id must be a number"});
+    }
 
     selectArticleById(article_id)
     .then((article) => {
@@ -23,9 +32,19 @@ exports.getArticleById = (req, res, next) => {
     .catch(next);
 };
 
-exports.getArticles = (req, res, next) => {
-    selectArticles()
-    .then((articles) => {
-        res.status(200).send({ articles: articles })
+exports.getArticleCommentsById = (req, res, next) => {
+    const { article_id } = req.params;
+    if(!Number(article_id)){
+        res.status(400).send({msg:"Bad Request: article_id must be a number"});
+    }
+
+    //invokes selectArticleById first to use its error handling to handle non existing article_ids
+    selectArticleById(article_id)
+    .then((article) => {
+        return selectCommentsByArticleId(article.article_id);
     })
+    .then((comments) => {
+        res.status(200).send({ comments });
+    })
+    .catch(next);
 };

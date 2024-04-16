@@ -94,7 +94,7 @@ describe('GET', () => {
                 .get('/api/articles/9999')
                 .expect(404)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe("Not Found: ID doesn't exist");
+                    expect(msg).toBe("Not Found: This article_id doesn't exist");
                 });
             });
 
@@ -103,7 +103,7 @@ describe('GET', () => {
                 .get('/api/articles/not_an_id')
                 .expect(400)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe('Bad Request');
+                    expect(msg).toBe('Bad Request: article_id must be a number');
                 });
             });
 
@@ -123,7 +123,8 @@ describe('GET', () => {
                 .expect(200)
                 .then(({body: { articles }}) => {
                     expect(Array.isArray(articles)).toBe(true);
-                    expect(articles).toBeSorted({ descending: true });
+                    expect(articles.length).toBe(13);
+                    expect(articles).toBeSortedBy('created_at', { descending: true });
                     articles.forEach((article) => {
                         expect(article).not.toHaveProperty('body');
                         expect(typeof article.author).toBe("string");
@@ -141,6 +142,62 @@ describe('GET', () => {
         });
 
 
+    });
+
+    describe('GET: /api/articles/:article_id/comments', () => {
+
+        describe('GOOD PATH:', () => {
+
+            test(`200: /api/articles/:article_id/comments responds with an array of comment objects: 
+            each having comment_id, votes, created_at, author, body and article_id properties`, () => {
+                return request(app)
+                .get('/api/articles/1/comments')
+                .expect(200)
+                .then(({body: { comments }}) => {
+                    expect(comments.length).toBe(11);
+                    expect(comments).toBeSortedBy('created_at', { descending: true });
+                    comments.forEach((comment) => {
+                        expect(typeof comment.comment_id).toBe("number");
+                        expect(typeof comment.votes).toBe("number");
+                        expect(typeof comment.created_at).toBe("string");
+                        expect(typeof comment.author).toBe("string");
+                        expect(typeof comment.body).toBe("string");
+                        expect(typeof comment.article_id).toBe("number");
+                    })
+                });
+            });
+
+        });
+
+        describe('BAD PATHS:', () => {
+
+            test(`404: When passed an article_id that does not exist but fits the correct variable type respond with a 404: Not Found error`, () => {
+                return request(app)
+                .get('/api/articles/9999/comments')
+                .expect(404)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Not Found: This article_id doesn't exist");
+                });
+            });
+
+            test(`400: When passed an article_id that is not the correct format/variable type respond with a 400: Bad Request`, () => {
+                return request(app)
+                .get('/api/articles/not_an_id/comments')
+                .expect(400)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Bad Request: article_id must be a number");
+                });
+            });
+
+            test(`404: When passed an article_id that corresponds to an article with no comments return 404: Not Found`, () => {
+                return request(app)
+                .get('/api/articles/4/comments')
+                .expect(404)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Not Found: This article has no comments");
+                });
+            });
+        });
     });
 
 });
