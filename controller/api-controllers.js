@@ -26,9 +26,6 @@ exports.getArticleById = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
     selectArticles()
     .then((articles) => {
-        return countAllComments(articles);
-    })
-    .then((articlesWithCommentCount) => {
-        res.status(200).send({ articles: articlesWithCommentCount })
+        res.status(200).send({ articles: articles })
     })
 };

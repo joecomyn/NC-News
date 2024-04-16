@@ -24,17 +24,13 @@ exports.selectArticleById = (article_id) => {
 exports.selectArticles = () => {
     return db.query('SELECT * FROM articles')
     .then(({rows}) => {
-        return rows;
+        const commentCountPromises = rows.map((article) => {
+            return db.query(`SELECT FROM comments WHERE article_id=${article.article_id}`)
+            .then(({rows}) => {
+                return {...article, comment_count: rows.length};
+            })
+        });
+    
+        return Promise.all(commentCountPromises)
     })
-};
-
-exports.countAllComments = (articles) => {
-    const getCommentCountPromises = articles.map((article) => {
-        return db.query(`SELECT FROM comments WHERE article_id=${article.article_id}`)
-        .then(({rows}) => {
-            return {...article, comment_count: rows.length};
-        })
-    });
-
-    return Promise.all(getCommentCountPromises)
 };
