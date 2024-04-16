@@ -13,8 +13,8 @@ exports.selectArticleById = (article_id) => {
     .then(({rows}) => {
         if(rows.length === 0){
            return Promise.reject({
-            status: 400,
-            msg: "Bad Request"
+            status: 404,
+            msg: "Not Found: ID doesn't exist"
            });
         }
         return rows[0];

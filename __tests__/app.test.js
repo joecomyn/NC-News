@@ -74,11 +74,6 @@ describe('GET', () => {
                 .get('/api/articles/1')
                 .expect(200)
                 .then(({body: { article }}) => {
-                    //test type returned
-                    expect(typeof article).toBe('object');
-                    expect(Array.isArray(article)).toBe(false);
-                    expect(article === null).toBe(false);
-                    //test returned object properties match
                     expect(article.article_id).toBe(1);
                     expect(article.title).toBe("Living in the shadow of a great man");
                     expect(article.topic).toBe("mitch");
@@ -94,12 +89,12 @@ describe('GET', () => {
 
         describe('BAD PATHS:', () => {
             
-            test('400: /api/articles/9999 When passed a non-existing id send a 400 bad request', () => {
+            test('404: /api/articles/9999 When passed a non-existing id send a 404 Not found', () => {
                 return request(app)
                 .get('/api/articles/9999')
-                .expect(400)
+                .expect(404)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe('Bad Request');
+                    expect(msg).toBe("Not Found: ID doesn't exist");
                 });
             });
 
