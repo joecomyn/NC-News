@@ -3,6 +3,7 @@ const request = require('supertest');
 const db = require("../db/connection");
 const data = require('../db/data/test-data');
 const seed = require('../db/seeds/seed');
+const endpointsCheck = require('../endpoints.json');
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -45,13 +46,13 @@ describe('GET', () => {
                     expect(typeof endpoints).toBe('object');
                     expect(Array.isArray(endpoints)).toBe(false);
                     expect(endpoints !== null).toBe(true);
-                    for(const endpoint in endpoints){
-                        if(endpoint === "GET /api"){
-                            expect(typeof endpoints[endpoint].description).toBe('string');
+                    for(const receivedEndpoint in endpoints){
+                        if(receivedEndpoint === "GET /api"){
+                            expect(endpoints[receivedEndpoint].description).toBe("serves up a json representation of all the available endpoints of the api");
                         }else{
-                            expect(typeof endpoints[endpoint].description).toBe('string');
-                            expect(Array.isArray(endpoints[endpoint].queries)).toBe(true);
-                            expect(typeof endpoints[endpoint].exampleResponse).toBe('object');
+                            expect(endpoints[receivedEndpoint].description).toBe(endpointsCheck[receivedEndpoint].description);
+                            expect(endpoints[receivedEndpoint].queries).toEqual(endpointsCheck[receivedEndpoint].queries);
+                            expect(endpoints[receivedEndpoint].exampleResponse).toEqual(endpointsCheck[receivedEndpoint].exampleResponse);
                         }
                     }
                 });

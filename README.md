@@ -22,7 +22,7 @@ Packages used:
 - supertest: Used for testing HTTP request assertions and API as a whole. Used in conjunction with Jest
   Install: npm install supertest --save-dev
 
-- .ENV Setup:
+.ENV Setup:
 
 - This project requires 2 .env files to be created: .env.test and .env.development.
 - Add "
