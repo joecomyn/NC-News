@@ -202,6 +202,52 @@ describe('GET', () => {
 
 });
 
+describe('POST', () => {
+
+    describe('POST: /api/articles/:article_id/comments', () => {
+
+        describe('GOOD PATH:', () => {
+            
+            test('201: when passed a username and comment body on a correct article_id post the new comment to that article and return the posted comment', () => {
+
+                const inputComment = {
+                    username:"icellusedkars",
+                    body:"I like eggs"
+                }
+
+                return request(app)
+                .post('/api/articles/4/comments')
+                .send(inputComment)
+                .expect(201)
+                .then(({body: { postedComment }}) => {
+                    expect(typeof postedComment.comment_id).toBe('number');
+                    expect(postedComment.body).toBe(inputComment.body);
+                    expect(postedComment.author).toBe(inputComment.username);
+                    expect(postedComment.article_id).toBe(4);
+                    expect(postedComment.votes).toBe(0);
+                    expect(typeof postedComment.created_at).toBe('string')
+                });
+            });
+
+        });
+
+        describe('BAD PATHS:', () => {
+
+            test(`404: When passed an article_id that does not exist but fits the correct variable type respond with a 404: Not Found error`, () => {
+                return request(app)
+                .post('/api/articles/9999/comments')
+                .expect(404)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Not Found: This article_id doesn't exist");
+                });
+            });
+
+        });
+
+    });
+
+});
+
 describe('URL BAD PATHS:', () => {
 
     test('404: /api/topic responds with a 404 not found error as that endpoint does not exist', () => {

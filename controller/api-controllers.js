@@ -1,4 +1,4 @@
-const { selectTopics, selectArticleById, selectArticles, selectCommentsByArticleId } = require('../model/api-models');
+const { selectTopics, selectArticleById, selectArticles, selectCommentsByArticleId, insertCommentByArticleId } = require('../model/api-models');
 const endpoints = require('../endpoints.json');
 
 exports.getEndpoints = (req, res, next) => {
@@ -32,12 +32,11 @@ exports.getArticleById = (req, res, next) => {
     .catch(next);
 };
 
-exports.getArticleCommentsById = (req, res, next) => {
+exports.getCommentsByArticleId = (req, res, next) => {
     const { article_id } = req.params;
     if(!Number(article_id)){
         res.status(400).send({msg:"Bad Request: article_id must be a number"});
     }
-
     //invokes selectArticleById first to use its error handling to handle non existing article_ids
     selectArticleById(article_id)
     .then((article) => {
@@ -47,4 +46,12 @@ exports.getArticleCommentsById = (req, res, next) => {
         res.status(200).send({ comments });
     })
     .catch(next);
+};
+
+exports.postCommentByArticleId = (req, res, next) => {
+    const { article_id } = req.params;
+    insertCommentByArticleId(req.body, article_id)
+    .then((postedComment) => {
+        res.status(201).send({ postedComment });
+    });
 };
