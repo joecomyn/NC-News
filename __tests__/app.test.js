@@ -211,8 +211,8 @@ describe('POST', () => {
             test('201: when passed a username and comment body on a correct article_id post the new comment to that article and return the posted comment', () => {
 
                 const inputComment = {
-                    username:"icellusedkars",
-                    body:"I like eggs"
+                    username: "icellusedkars",
+                    body: "I like eggs"
                 }
 
                 return request(app)
@@ -234,11 +234,125 @@ describe('POST', () => {
         describe('BAD PATHS:', () => {
 
             test(`404: When passed an article_id that does not exist but fits the correct variable type respond with a 404: Not Found error`, () => {
+
+                const inputComment = {
+                    username: "icellusedkars",
+                    body: "I like eggs"
+                };
+
                 return request(app)
                 .post('/api/articles/9999/comments')
                 .expect(404)
+                .send(inputComment)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe("Not Found: This article_id doesn't exist");
+                    expect(msg).toBe("Not Found: this article_id does not exist");
+                });
+            });
+
+            test(`400: When trying to post a comment to an article_id that does not fit format send 400: Bad Request`, () => {
+
+                const inputComment = {
+                    username: "icellusedkars",
+                    body: "I like eggs"
+                };
+
+                return request(app)
+                .post('/api/articles/not_an_id/comments')
+                .expect(400)
+                .send(inputComment)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Bad Request: article_id must be a number");
+                });
+            });
+
+            test(`400: When trying to post a comment that is missing body property respond with a 400 bad request`, () => {
+
+                const inputComment = {
+                    username: "icellusedkars"
+                };
+
+                return request(app)
+                .post('/api/articles/4/comments')
+                .expect(400)
+                .send(inputComment)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Bad Request");
+                });
+            });
+
+            test(`400: When trying to post a comment that has a username which doesnt fit format send a 400: Bad Request`, () => {
+
+                const inputComment = {
+                    username: 2939049,
+                    body: "hello"
+                };
+
+                return request(app)
+                .post('/api/articles/4/comments')
+                .expect(400)
+                .send(inputComment)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Bad Request");
+                });
+            });
+
+            test(`400: When trying to post a comment that has a body which doesnt fit format send a 400: Bad Request`, () => {
+
+                const inputComment = {
+                    username: "icellusedkars",
+                    body: 584857494
+                };
+
+                return request(app)
+                .post('/api/articles/4/comments')
+                .expect(400)
+                .send(inputComment)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Bad Request");
+                });
+            });
+
+            test(`400: When trying to post a comment that is missing username property respond with a 400 bad request`, () => {
+
+                const inputComment = {
+                    body: "I like eggs"
+                };
+
+                return request(app)
+                .post('/api/articles/4/comments')
+                .expect(400)
+                .send(inputComment)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Bad Request");
+                });
+            });
+
+            test(`400: When posted an empty comment object respond with 400: Bad Request`, () => {
+
+                const inputComment = {};
+
+                return request(app)
+                .post('/api/articles/4/comments')
+                .expect(400)
+                .send(inputComment)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Bad Request: comment empty");
+                });
+            });
+
+            test(`404: When trying to post a comment with a username that fits format but doesnt exist in the database respond with 404: username not found`, () => {
+
+                const inputComment = {
+                    username: "not_a_username",
+                    body: "Hey guys whatsup"
+                };
+
+                return request(app)
+                .post('/api/articles/4/comments')
+                .expect(404)
+                .send(inputComment)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Not Found: this author does not exist");
                 });
             });
 
