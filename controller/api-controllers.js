@@ -50,15 +50,12 @@ exports.getCommentsByArticleId = (req, res, next) => {
 
 exports.postCommentByArticleId = (req, res, next) => {
     if(Object.keys(req.body).length === 0){
-        res.status(400).send({msg: "Bad Request: comment empty"});
+        res.status(400).send({msg: "Bad Request"});
     }
     else if(typeof req.body.username !== "string" || typeof req.body.body !== "string"){
         res.status(400).send({msg: "Bad Request"});
-    }
+     }
     const { article_id } = req.params;
-    if(!Number(article_id)){
-        res.status(400).send({msg:"Bad Request: article_id must be a number"});
-    }
     insertCommentByArticleId(req.body, article_id)
     .then((postedComment) => {
         res.status(201).send({ postedComment });

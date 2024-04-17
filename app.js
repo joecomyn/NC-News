@@ -25,11 +25,14 @@ app.use((err, req, res, next) => {
         res.status(err.status).send({ msg: err.msg });
     }
     else if(err.code === '23503'){
-        res.status(404).send({msg: `Not Found: this ${/(?<=\()(.*?)(?=\))/.exec(err.detail)[0]} does not exist`})
+        res.status(404).send({msg: `Not Found`})
     }
-    // else if(err.code === '23502'){
-    //     res.status(400).send({msg: `Bad Request: request missing ${err.column} value`})
-    // }
+    else if(err.code === '23502'){
+        res.status(400).send({msg: `Bad Request`})
+    }
+    else if(err.code === '22P02'){
+        res.status(400).send({msg: `Bad Request`})
+    }
 });
 
 module.exports = app;
