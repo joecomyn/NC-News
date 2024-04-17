@@ -430,6 +430,7 @@ describe('PATCH', () => {
                 .then(({body: { patchedArticle }}) => {
                     expect(patchedArticle.votes).toBe(-100);
                 });
+                
             });
 
             test('200: when patch is called with a valid article_id, make sure no other article values can be changed or added other than votes being incrememented', () => {
