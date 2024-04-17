@@ -86,5 +86,10 @@
         "comment_count": 6
         }
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "takes a comment_id and deletes corresponding comment",
+    "queries": [],
+    "exampleResponse": {}
   }
 }
