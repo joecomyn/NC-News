@@ -8,6 +8,16 @@ exports.selectTopics = () => {
         });
 };
 
+exports.selectUsers = () => {
+    return db.query(`
+        SELECT username, name, avatar_url
+        FROM users;
+    `)
+    .then(({rows}) => {
+        return rows;
+    });
+};
+
 exports.selectArticleById = (article_id) => {
     if(!Number(article_id)){
         return Promise.reject({

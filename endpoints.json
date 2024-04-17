@@ -9,6 +9,13 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "topics": [{ "username": "golden_boy", "name": "Jamie", "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZS9DspNeX0NVom3LwnFfXVlIsLAw4rXt0PS8Su-LO5w&s" }]
+    }
+  },
   "GET /api/articles": {
     "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],

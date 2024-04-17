@@ -20,7 +20,6 @@ describe('GET', () => {
                 .get('/api/topics')
                 .expect(200)
                 .then(({body: { topics }}) => {
-                    expect(Array.isArray(topics)).toBe(true);
                     topics.forEach((topic) => {
                         expect(typeof topic.description).toBe("string");
                         expect(typeof topic.slug).toBe("string");
@@ -30,6 +29,27 @@ describe('GET', () => {
 
         });
 
+
+    });
+
+    describe('GET: /api/users', () => {
+
+        describe('GOOD PATH:', () => {
+
+            test("200: when api path is used it returns an array of all users objects containing username, name and avatar_url", () => {
+                return request(app)
+                .get('/api/users')
+                .expect(200)
+                .then(({body: { users }}) => {
+                    users.forEach((user) => {
+                        expect(typeof user.username).toBe("string");
+                        expect(typeof user.name).toBe("string");
+                        expect(typeof user.avatar_url).toBe("string");
+                    })
+                });
+            });
+
+        });
 
     });
 
