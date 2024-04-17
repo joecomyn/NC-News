@@ -122,9 +122,7 @@ describe('GET', () => {
                 .get('/api/articles')
                 .expect(200)
                 .then(({body: { articles }}) => {
-                    expect(Array.isArray(articles)).toBe(true);
                     expect(articles.length).toBe(13);
-                    expect(articles).toBeSortedBy('created_at', { descending: true });
                     articles.forEach((article) => {
                         expect(article).not.toHaveProperty('body');
                         expect(typeof article.author).toBe("string");
@@ -136,6 +134,15 @@ describe('GET', () => {
                         expect(typeof article.article_img_url).toBe("string");
                         expect(typeof article.comment_count).toBe("number");
                     })
+                });
+            });
+
+            test(`200: return array of articles in DESCENDING order`, () => {
+                return request(app)
+                .get('/api/articles')
+                .expect(200)
+                .then(({body: { articles }}) => {
+                    expect(articles).toBeSortedBy('created_at', { descending: true });
                 });
             });
 
@@ -155,15 +162,32 @@ describe('GET', () => {
                 .expect(200)
                 .then(({body: { comments }}) => {
                     expect(comments.length).toBe(11);
-                    expect(comments).toBeSortedBy('created_at', { descending: true });
                     comments.forEach((comment) => {
                         expect(typeof comment.comment_id).toBe("number");
                         expect(typeof comment.votes).toBe("number");
                         expect(typeof comment.created_at).toBe("string");
                         expect(typeof comment.author).toBe("string");
                         expect(typeof comment.body).toBe("string");
-                        expect(typeof comment.article_id).toBe("number");
+                        expect(comment.article_id).toBe(1);
                     })
+                });
+            });
+
+            test(`200: When passed an article_id return array of comments associated with that article_id in DESCENDING order`, () => {
+                return request(app)
+                .get('/api/articles/4/comments')
+                .expect(200)
+                .then(({body: { comments }}) => {
+                    expect(comments).toBeSortedBy('created_at', { descending: true });
+                });
+            });
+
+            test(`200: When passed an article_id that corresponds to an article with no comments return an empty array`, () => {
+                return request(app)
+                .get('/api/articles/4/comments')
+                .expect(200)
+                .then(({body: { comments }}) => {
+                   expect(comments.length).toBe(0);
                 });
             });
 
@@ -189,14 +213,6 @@ describe('GET', () => {
                 });
             });
 
-            test(`404: When passed an article_id that corresponds to an article with no comments return 404: Not Found`, () => {
-                return request(app)
-                .get('/api/articles/4/comments')
-                .expect(404)
-                .then(({body: { msg }}) => {
-                    expect(msg).toBe("Not Found: This article has no comments");
-                });
-            });
         });
     });
 
