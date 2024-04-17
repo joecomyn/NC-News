@@ -1,4 +1,4 @@
-const { selectTopics, selectArticleById, selectArticles, selectCommentsByArticleId, insertCommentByArticleId } = require('../model/api-models');
+const { selectTopics, selectArticleById, selectArticles, selectCommentsByArticleId, insertCommentByArticleId, updateArticleByArticleId } = require('../model/api-models');
 const endpoints = require('../endpoints.json');
 
 exports.getEndpoints = (req, res, next) => {
@@ -21,10 +21,6 @@ exports.getArticles = (req, res, next) => {
 
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params;
-    if(!Number(article_id)){
-        res.status(400).send({msg:"Bad Request: article_id must be a number"});
-    }
-
     selectArticleById(article_id)
     .then((article) => {
         res.status(200).send({ article });
@@ -34,9 +30,6 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
     const { article_id } = req.params;
-    if(!Number(article_id)){
-        res.status(400).send({msg:"Bad Request: article_id must be a number"});
-    }
     //invokes selectArticleById first to use its error handling to handle non existing article_ids
     selectArticleById(article_id)
     .then((article) => {
@@ -49,16 +42,20 @@ exports.getCommentsByArticleId = (req, res, next) => {
 };
 
 exports.postCommentByArticleId = (req, res, next) => {
-    if(Object.keys(req.body).length === 0){
-        res.status(400).send({msg: "Bad Request"});
-    }
-    else if(typeof req.body.username !== "string" || typeof req.body.body !== "string"){
-        res.status(400).send({msg: "Bad Request"});
-     }
     const { article_id } = req.params;
     insertCommentByArticleId(req.body, article_id)
     .then((postedComment) => {
         res.status(201).send({ postedComment });
+    })
+    .catch(next);
+};
+
+exports.patchArticleByArticleId = (req, res, next) => {
+    const { article_id } = req.params;
+    const { inc_votes } = req.body;
+    updateArticleByArticleId(inc_votes, article_id)
+    .then((patchedArticle) => {
+        res.status(200).send({ patchedArticle })
     })
     .catch(next);
 };

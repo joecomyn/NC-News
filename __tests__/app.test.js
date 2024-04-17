@@ -94,7 +94,7 @@ describe('GET', () => {
                 .get('/api/articles/9999')
                 .expect(404)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe("Not Found: This article_id doesn't exist");
+                    expect(msg).toBe("Not Found");
                 });
             });
 
@@ -103,7 +103,7 @@ describe('GET', () => {
                 .get('/api/articles/not_an_id')
                 .expect(400)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe('Bad Request: article_id must be a number');
+                    expect(msg).toBe('Bad Request');
                 });
             });
 
@@ -200,7 +200,7 @@ describe('GET', () => {
                 .get('/api/articles/9999/comments')
                 .expect(404)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe("Not Found: This article_id doesn't exist");
+                    expect(msg).toBe("Not Found");
                 });
             });
 
@@ -209,7 +209,7 @@ describe('GET', () => {
                 .get('/api/articles/not_an_id/comments')
                 .expect(400)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe("Bad Request: article_id must be a number");
+                    expect(msg).toBe("Bad Request");
                 });
             });
 
@@ -222,7 +222,7 @@ describe('POST', () => {
 
     describe('POST: /api/articles/:article_id/comments', () => {
 
-        describe('GOOD PATH:', () => {
+        describe('GOOD PATHS:', () => {
             
             test('201: when passed a username and comment body on a correct article_id post the new comment to that article and return the posted comment', () => {
 
@@ -391,9 +391,121 @@ describe('POST', () => {
                 .post('/api/articles/4/comments')
                 .expect(404)
                 .send(inputComment)
+                .then(({body: { patchedItem }}) => {
+                    
+                });
+            });
+
+        });
+
+    });
+
+});
+
+describe('PATCH', () => {
+
+    describe('PATCH: /api/articles/:article_id', () => {
+
+        describe('GOOD PATHS:', () => {
+            
+            test('200: { inc_votes: newvotes } object on a correct article_id, update existing article that has corresponding article_id with the votes returning the patched article with the updated votes value', () => {
+                const patchItem = { inc_votes: 1 };
+
+                return request(app)
+                .patch('/api/articles/4')
+                .send(patchItem)
+                .expect(200)
+                .then(({body: { patchedArticle }}) => {
+                    expect(patchedArticle.votes).toBe(1);
+                });
+            });
+            
+            test('200: negative vote values should be able to be taken to emulate downvotes', () => {
+                const patchItem = { inc_votes: -100 };
+
+                return request(app)
+                .patch('/api/articles/4')
+                .send(patchItem)
+                .expect(200)
+                .then(({body: { patchedArticle }}) => {
+                    expect(patchedArticle.votes).toBe(-100);
+                });
+            });
+
+            test('200: when patch is called with a valid article_id, make sure no other article values can be changed or added other than votes being incrememented', () => {
+                const patchItem = { 
+                    inc_votes: 1, 
+                    body: "Don't change the body" ,
+                    newProperty: "Don't add this property"
+                };
+
+                return request(app)
+                .patch('/api/articles/4')
+                .send(patchItem)
+                .expect(200)
+                .then(({body: { patchedArticle }}) => {
+                    expect(Object.keys(patchedArticle).length).toBe(8)
+                    expect(patchedArticle.author).toBe("rogersop");
+                    expect(patchedArticle.title).toBe("Student SUES Mitch!");
+                    expect(patchedArticle.article_id).toBe(4);
+                    expect(patchedArticle.topic).toBe("mitch");
+                    expect(patchedArticle.created_at).toBe("2020-05-06T01:14:00.000Z");
+                    expect(patchedArticle.votes).toBe(1);
+                    expect(patchedArticle.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+                });
+
+            });
+
+        });
+
+        describe('BAD PATHS:', () => {
+
+            test(`400: When trying to patch votes on an article that doesnt exist throw 404`, () => {
+
+                const patchItem = {
+                    inc_votes: 2
+                };
+
+                return request(app)
+                .patch('/api/articles/9999')
+                .expect(404)
+                .send(patchItem)
                 .then(({body: { msg }}) => {
                     expect(msg).toBe("Not Found");
                 });
+
+            });
+
+            test(`400: if trying to increment votes on a article_id which doesnt fit format throw a 400 bad request`, () => {
+
+                const patchItem = {
+                    inc_votes: 3
+                };
+
+                return request(app)
+                .patch('/api/articles/not_an_id')
+                .expect(400)
+                .send(patchItem)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Bad Request");
+                });
+
+            });
+
+            test(`400: If votes to increment is not correct format throw bad request `, () => {
+
+                const patchItem = {
+                    inc_votes: "not_a_number"
+                };
+
+                return request(app)
+                .patch('/api/articles/4')
+                .expect(400)
+                .send(patchItem)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Bad Request");
+                });
+
             });
 
         });
