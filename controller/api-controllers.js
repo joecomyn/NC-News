@@ -1,5 +1,13 @@
-const { selectTopics, selectArticleById, selectArticles, selectCommentsByArticleId, insertCommentByArticleId, updateArticleByArticleId, deleteCommentByCommentId } = require('../model/api-models');
 const endpoints = require('../endpoints.json');
+const { selectTopics, 
+    selectArticleById, 
+    selectArticles, 
+    selectCommentsByArticleId, 
+    insertCommentByArticleId, 
+    updateArticleByArticleId, 
+    deleteCommentByCommentId, 
+    selectUsers 
+} = require('../model/api-models');
 
 exports.getEndpoints = (req, res, next) => {
     res.status(200).send({ endpoints });
@@ -16,6 +24,13 @@ exports.getArticles = (req, res, next) => {
     selectArticles()
     .then((articles) => {
         res.status(200).send({ articles: articles })
+    })
+};
+
+exports.getUsers = (req, res, next) => {
+    selectUsers()
+    .then((users) => {
+        res.status(200).send({ users })
     })
 };
 
