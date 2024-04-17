@@ -245,6 +245,30 @@ describe('POST', () => {
                 });
             });
 
+            test('201: when passed a username and comment body with extra unnecessary values on a correct article_id post the new comment without other values to that article and return the posted comment', () => {
+
+                const inputComment = {
+                    username: "icellusedkars",
+                    body: "I like eggs",
+                    test1: "not needed",
+                    test2: "not needed either"
+                }
+
+                return request(app)
+                .post('/api/articles/4/comments')
+                .send(inputComment)
+                .expect(201)
+                .then(({body: { postedComment }}) => {
+                    expect(Object.keys(postedComment).length).toBe(6);
+                    expect(typeof postedComment.comment_id).toBe('number');
+                    expect(postedComment.body).toBe(inputComment.body);
+                    expect(postedComment.author).toBe(inputComment.username);
+                    expect(postedComment.article_id).toBe(4);
+                    expect(postedComment.votes).toBe(0);
+                    expect(typeof postedComment.created_at).toBe('string')
+                });
+            });
+
         });
 
         describe('BAD PATHS:', () => {
@@ -261,7 +285,7 @@ describe('POST', () => {
                 .expect(404)
                 .send(inputComment)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe("Not Found: this article_id does not exist");
+                    expect(msg).toBe("Not Found");
                 });
             });
 
@@ -277,7 +301,7 @@ describe('POST', () => {
                 .expect(400)
                 .send(inputComment)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe("Bad Request: article_id must be a number");
+                    expect(msg).toBe("Bad Request");
                 });
             });
 
@@ -352,7 +376,7 @@ describe('POST', () => {
                 .expect(400)
                 .send(inputComment)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe("Bad Request: comment empty");
+                    expect(msg).toBe("Bad Request");
                 });
             });
 
@@ -368,7 +392,7 @@ describe('POST', () => {
                 .expect(404)
                 .send(inputComment)
                 .then(({body: { msg }}) => {
-                    expect(msg).toBe("Not Found: this author does not exist");
+                    expect(msg).toBe("Not Found");
                 });
             });
 
