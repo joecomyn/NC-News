@@ -7,7 +7,8 @@ const {
     getArticleById, 
     getCommentsByArticleId, 
     postCommentByArticleId, 
-    patchArticleByArticleId 
+    patchArticleByArticleId, 
+    removeCommentByCommentId
 } = require('./controller/api-controllers');
 
 app.use(express.json());
@@ -25,6 +26,8 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
 app.post('/api/articles/:article_id/comments', postCommentByArticleId);
 
 app.patch('/api/articles/:article_id', patchArticleByArticleId);
+
+app.delete('/api/comments/:comment_id', removeCommentByCommentId);
 
 app.all('*', (req, res) => {
     res.status(404).send({msg: "Not found: Path doesnt exist"})

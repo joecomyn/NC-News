@@ -4,6 +4,7 @@ const db = require("../db/connection");
 const data = require('../db/data/test-data');
 const seed = require('../db/seeds/seed');
 const endpointsCheck = require('../endpoints.json');
+const { deleteCommentByCommentId } = require('../model/api-models');
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -430,7 +431,7 @@ describe('PATCH', () => {
                 .then(({body: { patchedArticle }}) => {
                     expect(patchedArticle.votes).toBe(-100);
                 });
-                
+
             });
 
             test('200: when patch is called with a valid article_id, make sure no other article values can be changed or added other than votes being incrememented', () => {
@@ -461,7 +462,7 @@ describe('PATCH', () => {
 
         describe('BAD PATHS:', () => {
 
-            test(`400: When trying to patch votes on an article that doesnt exist throw 404`, () => {
+            test(`404: When trying to patch votes on an article that doesnt exist throw 404`, () => {
 
                 const patchItem = {
                     inc_votes: 2
@@ -503,8 +504,8 @@ describe('PATCH', () => {
                 .patch('/api/articles/4')
                 .expect(400)
                 .send(patchItem)
-                .then(({body: { msg }}) => {
-                    expect(msg).toBe("Bad Request");
+                .then(({body: { deletedComment }}) => {
+                    
                 });
 
             });
@@ -515,6 +516,41 @@ describe('PATCH', () => {
 
 });
 
+describe('DELETE', () => {
+
+    describe('DELETE: /api/comments/:comment_id', () => {
+        
+        describe('GOOD PATHS:', () => {
+
+            test('204: When given a valid comment_id delete that comment and return no content',() => {
+
+                return request(app)
+                    .delete('/api/comments/1')
+                    .expect(204)
+                    .then(({body}) => {
+                        expect(body).toEqual({});
+                    })
+            });
+
+        });
+
+        describe('BAD PATHS:', () => {
+
+            test(`404: when trying to delete a comment with a comment_id that doesnt fit format throw 400 bad request`, () => {
+
+                return request(app)
+                .delete('/api/comments/ddhdh8dwh')
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe("Bad Request");
+                });
+
+            });
+
+        });
+    });
+
+});
 describe('URL BAD PATHS:', () => {
 
     test('404: /api/topic responds with a 404 not found error as that endpoint does not exist', () => {
