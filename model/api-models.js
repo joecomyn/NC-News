@@ -22,30 +22,22 @@ exports.selectArticleById = (article_id) => {
 };
 
 exports.selectArticles = () => {
-    return db.query('SELECT * FROM articles ORDER BY created_at DESC;')
+    return db.query(`
+    SELECT COUNT(comments.article_id)::INT AS comment_count , articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.article_img_url, articles.votes
+    FROM comments
+    RIGHT JOIN articles 
+    ON comments.article_id = articles.article_id
+    GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC
+    `)
     .then(({rows}) => {
-        const commentCountPromises = rows.map((article) => {
-            return db.query(`SELECT FROM comments WHERE article_id=$1;`, [article.article_id])
-            .then(({rows}) => {
-                const articleCopy = {...article, comment_count: rows.length};
-                delete articleCopy.body;
-                return articleCopy;
-            })
-        });
-    
-        return Promise.all(commentCountPromises)
+        return rows;
     })
 };
 
 exports.selectCommentsByArticleId = (article_id) => {
     return db.query('SELECT * FROM comments WHERE article_id=$1 ORDER BY created_at DESC;', [article_id])
     .then(({rows}) => {
-        if(rows.length === 0){
-            return Promise.reject({
-                status: 404,
-                msg: "Not Found: This article has no comments"
-            });
-        }
         return rows;
     });
 };
