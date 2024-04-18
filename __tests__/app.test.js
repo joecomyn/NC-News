@@ -41,6 +41,7 @@ describe('GET', () => {
                 .get('/api/users')
                 .expect(200)
                 .then(({body: { users }}) => {
+                    expect(users.length).toBe(4);
                     users.forEach((user) => {
                         expect(typeof user.username).toBe("string");
                         expect(typeof user.name).toBe("string");
@@ -188,6 +189,15 @@ describe('GET', () => {
                 });
             });
 
+            test(`200: GET:/api/articles/?topic=paper when given an existing topic that has no articles under it return an empty array`, () => {
+                return request(app)
+                .get('/api/articles/?topic=paper')
+                .expect(200)
+                .then(({body: { articles }}) => {
+                    expect(articles.length).toBe(0)
+                });
+            });
+
         });
 
         describe('BAD PATHS:', () => {
@@ -196,7 +206,7 @@ describe('GET', () => {
                 return request(app)
                 .get('/api/articles/?topic=not_a_topic')
                 .expect(404)
-                .then(({body: { msg }}) => {
+                .then(({body: { msg, articles }}) => {
                     expect(msg).toBe("Not Found");
                 });
             });
