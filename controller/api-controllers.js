@@ -21,10 +21,12 @@ exports.getTopics = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    selectArticles()
+    const { topic } = req.query
+    selectArticles(topic)
     .then((articles) => {
         res.status(200).send({ articles: articles })
     })
+    .catch(next);
 };
 
 exports.getUsers = (req, res, next) => {
@@ -35,6 +37,7 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.getArticleById = (req, res, next) => {
+    
     const { article_id } = req.params;
     selectArticleById(article_id)
     .then((article) => {
