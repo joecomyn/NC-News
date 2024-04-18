@@ -1,5 +1,6 @@
 const db = require("../db/connection");
 const { find, forEach } = require("../db/data/test-data/articles");
+const { checkExists } = require("../db/db_utils/utils");
 
 exports.selectTopics = () => {
     return db.query('SELECT * FROM topics;')
@@ -49,7 +50,7 @@ exports.selectArticles = (topic) => {
 
     if(topic){
         reqQueries.push(topic);
-        queryStr += ` WHERE topic = $1`;
+        queryStr += ` WHERE EXISTS (SELECT 1 FROM topics WHERE slug=$1) AND topic = $1`;
     }
 
     queryStr += `
@@ -59,11 +60,11 @@ exports.selectArticles = (topic) => {
 
     return db.query(queryStr, reqQueries)
     .then(({rows}) => {
-        if(rows.length == 0){
-            return Promise.reject({
-                status: 404,
-                msg: "Not Found"
-               });
+        if(topic){
+            return checkExists('topics', 'slug', topic)
+            .then(() => {
+            return rows;
+            })
         }
         return rows;
     })
