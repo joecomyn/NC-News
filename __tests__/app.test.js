@@ -134,7 +134,7 @@ describe('GET', () => {
 
     describe('GET: /api/articles', () => {
 
-        describe('GOOD PATH:', () => {
+        describe('GOOD PATHS:', () => {
 
             test(`200: /api/articles responds with an array of article objects: 
             each having author, title, article_id, topic, created_at, votes, 
@@ -167,8 +167,40 @@ describe('GET', () => {
                 });
             });
 
+            test(`200: GET:/api/articles/?topic=mitch get all articles under the mitch topic with all their previously mentioned properties `, () => {
+                return request(app)
+                .get('/api/articles/?topic=mitch')
+                .expect(200)
+                .then(({body: { articles }}) => {
+                    expect(articles.length).toBe(12);
+                    articles.forEach((article) => {
+                        expect(article).not.toHaveProperty('body');
+                        expect(typeof article.author).toBe("string");
+                        expect(typeof article.title).toBe("string");
+                        expect(typeof article.article_id).toBe("number");
+                        expect(article.topic).toBe("mitch");
+                        expect(typeof article.created_at).toBe("string");
+                        expect(typeof article.votes).toBe("number");
+                        expect(typeof article.article_img_url).toBe("string");
+                        expect(typeof article.comment_count).toBe("number");
+                    })
+                });
+            });
+
         });
 
+        describe('BAD PATHS:', () => {
+
+            test('404: GET:/api/articles/?topic=not_a_topic When passed a topic query of a non-existing topic send a 404 Not found', () => {
+                return request(app)
+                .get('/api/articles/?topic=not_a_topic')
+                .expect(404)
+                .then(({body: { msg }}) => {
+                    expect(msg).toBe("Not Found");
+                });
+            });
+            
+        });
 
     });
 
@@ -556,13 +588,28 @@ describe('DELETE', () => {
 
         describe('BAD PATHS:', () => {
 
-            test(`404: when trying to delete a comment with a comment_id that doesnt fit format throw 400 bad request`, () => {
+            test(`400: when trying to delete a comment with a comment_id that doesnt fit format throw 400 bad request`, () => {
 
                 return request(app)
                 .delete('/api/comments/ddhdh8dwh')
                 .expect(400)
                 .then(({body: {msg}}) => {
                     expect(msg).toBe("Bad Request");
+                });
+
+            });
+
+        });
+
+        describe('BAD PATHS:', () => {
+
+            test(`404: when trying to delete a comment with a comment_id that fits format but doesnt exist throw 404`, () => {
+
+                return request(app)
+                .delete('/api/comments/9999')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe("Not Found");
                 });
 
             });
