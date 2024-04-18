@@ -1,7 +1,6 @@
 const db = require("../db/connection");
 const { find, forEach } = require("../db/data/test-data/articles");
 const { checkExists } = require("../db/db-utils/db-utils");
-const format = require('pg-format');
 
 exports.selectTopics = () => {
     return db.query('SELECT * FROM topics;')
