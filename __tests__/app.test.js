@@ -4,7 +4,6 @@ const db = require("../db/connection");
 const data = require('../db/data/test-data');
 const seed = require('../db/seeds/seed');
 const endpointsCheck = require('../endpoints.json');
-const { deleteCommentByCommentId } = require('../model/api-models');
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
