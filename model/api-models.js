@@ -40,7 +40,10 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (topic) => {
+exports.selectArticles = (topic, sort_by = "created_at", order = "DESC") => {
+    const validSortBys = ["created_at", "author", "votes", "title", "topic"];
+    const validOrders = ["DESC", "ASC", "desc", "asc"];
+
     const reqQueries = [];
     let queryStr = `
     SELECT COUNT(comments.article_id)::INT AS comment_count , articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.article_img_url, articles.votes
@@ -53,10 +56,17 @@ exports.selectArticles = (topic) => {
         queryStr += ` WHERE EXISTS (SELECT 1 FROM topics WHERE slug=$1) AND topic = $1`;
     }
 
-    queryStr += `
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC
-    `;
+    if(validSortBys.includes(sort_by) && validOrders.includes(order)){
+        queryStr += `
+        GROUP BY articles.article_id
+        ORDER BY articles.${sort_by} ${order};`;  
+    }
+    else{
+        return Promise.reject({
+            status: 400,
+            msg: "Bad Request"
+           });
+    }
 
     return db.query(queryStr, reqQueries)
     .then(({rows}) => {
