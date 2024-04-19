@@ -193,10 +193,40 @@ describe('GET', () => {
                 .get('/api/articles/?topic=paper')
                 .expect(200)
                 .then(({body: { articles }}) => {
+                    expect(Array.isArray(articles)).toBe(true);
                     expect(articles.length).toBe(0)
                 });
             });
 
+            test(`200: GET:/api/articles/?sort_by=author when given a valid sort_by query sort the table by that column and by the default desc`, () => {
+                return request(app)
+                .get('/api/articles/?sort_by=author')
+                .expect(200)
+                .then(({body: { articles }}) => {
+                    expect(articles).toBeSortedBy('author', { descending: true });
+                });
+            });
+
+            test(`200: GET:/api/articles/?order=asc when given a valid order by query order by the default created_at column and the given order pattern`, () => {
+                return request(app)
+                .get('/api/articles/?order=asc')
+                .expect(200)
+                .then(({body: { articles }}) => {
+                    expect(articles).toBeSortedBy('created_at', { descending: false });
+                });
+            });
+
+            test(`200: GET:/api/articles/?topic=mitch&sort_by=votes&order=asc when given an aggregate query be able to return an array sorted and ordered by the queries specifications`, () => {
+                return request(app)
+                .get('/api/articles/?topic=mitch&sort_by=votes&order=asc')
+                .expect(200)
+                .then(({body: { articles }}) => {
+                    expect(articles).toBeSortedBy('votes', { descending: false });
+                    articles.forEach((article) => {
+                        expect(article.topic).toBe("mitch");
+                    });
+                });
+            });
         });
 
         describe('BAD PATHS:', () => {
@@ -205,11 +235,28 @@ describe('GET', () => {
                 return request(app)
                 .get('/api/articles/?topic=not_a_topic')
                 .expect(404)
-                .then(({body: { msg, articles }}) => {
+                .then(({body: { msg}}) => {
                     expect(msg).toBe("Not Found");
                 });
             });
             
+            test('400: GET:/api/articles/?sort_by=not_a_valid_sort when passed an invalid sort_by query return 400 bad request', () => {
+                return request(app)
+                .get('/api/articles/?sort_by=not_a_valid_sort')
+                .expect(400)
+                .then(({body: { msg}}) => {
+                    expect(msg).toBe("Bad Request");
+                });
+            });
+
+            test('400: GET:/api/articles/?order=not_an_order When passed an invalid order by pattern return 400 bad request', () => {
+                return request(app)
+                .get('/api/articles/?order=not_an_order')
+                .expect(400)
+                .then(({body: { msg}}) => {
+                    expect(msg).toBe("Bad Request");
+                });
+            });
         });
 
     });
