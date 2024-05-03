@@ -53,6 +53,40 @@ describe('GET', () => {
 
     });
 
+    describe('GET: /api/users/:username', () => {
+
+        describe('GOOD PATH:', () => {
+
+            test("200: GET:/api/users/:username should return the user object corresponding to the given username", () => {
+                return request(app)
+                .get('/api/users/butter_bridge')
+                .expect(200)
+                .then(({body: { user }}) => {
+                    expect(user.username).toBe("butter_bridge");
+                    expect(user.name).toBe("jonny");
+                    expect(user.avatar_url).toBe("https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg");
+                    
+                });
+            });
+
+        });
+    
+        describe('BAD PATHS:', () => {
+
+            test("404 GET:/api/users/:username when called with a non existing username should return 404 not found", () => {
+
+                return request(app)
+                .get('/api/users/not_a_username')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found');
+                })
+            });
+
+        });
+
+    });
+
     describe('GET: /api', () => {
 
         describe('GOOD PATH:', () => {
